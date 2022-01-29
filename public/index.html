@@ -1,0 +1,63 @@
+<html>
+
+<head>
+  <title>Express</title>
+  <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
+  <link rel="stylesheet" href="./stylesheets/style.css">
+</head>
+
+<body>
+<main class="container">
+  <div id="scrambles">
+  </div>
+</main>
+
+<script>
+  const SCRAMBLES = document.getElementById("scrambles");
+
+  function addCard(data) {
+    const split = data.split("|");
+
+    const fragment = document.createDocumentFragment();
+    const article = document.createElement("article");
+    const header = document.createElement("header");
+    fragment.append(article);
+    article.append(header);
+    header.append(document.createTextNode(new Date(parseInt(split[0])).toTimeString()))
+    article.append(document.createTextNode(split[1]));
+    SCRAMBLES.prepend(fragment);
+
+    if (SCRAMBLES.children.length >= 8) {
+      SCRAMBLES.removeChild(SCRAMBLES.lastChild);
+    }
+  }
+
+  function connect() {
+    const ws = new WebSocket(`ws://${window.location.host}/ws`);
+    ws.addEventListener("open", ev => {
+      addCard(`${new Date().getTime()}|Connected.`);
+    });
+
+    ws.addEventListener("close", ev => {
+      addCard(`${new Date().getTime()}|Disconnected.`);
+      setTimeout(() => {
+        connect();
+      }, 5000);
+    });
+
+    ws.addEventListener("error", ev => {
+      console.error(ev);
+      addCard(`${new Date().getTime()}|ERROR.`);
+    });
+
+    ws.addEventListener("message", ev => {
+      console.log(ev.data);
+      addCard(ev.data);
+    });
+  }
+
+  connect();
+</script>
+</body>
+
+</html>
