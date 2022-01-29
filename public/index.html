@@ -1,7 +1,8 @@
 <html>
 
 <head>
-  <title>Express</title>
+  <meta name="viewport" content="width=device-width">
+  <title>Speedcube Scrambler</title>
   <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
   <link rel="stylesheet" href="./stylesheets/style.css">
 </head>
@@ -33,7 +34,7 @@
   }
 
   function connect() {
-    const ws = new WebSocket(`ws://${window.location.host}/ws`);
+    const ws = new WebSocket(`wss://${window.location.host}/ws`);
     ws.addEventListener("open", ev => {
       addCard(`${new Date().getTime()}|Connected.`);
     });

@@ -5,15 +5,22 @@ import {_333, scramble} from "../Scramble";
 import {expressWS} from "../app";
 
 
+let DATA = generateScrambleData();
+
 new CronJob('*/30 * * * * *', () => {
-  const data = `${new Date().getTime()}|${scramble(_333, 16)}`;
+  DATA = generateScrambleData();
+
   Array.from(expressWS.getWss().clients)
     .filter(s => s.readyState == s.OPEN)
     .forEach(s => {
-      s.send(data);
+      s.send(DATA);
     });
 }, null, true);
 
-export const ScrambleWS: WebsocketRequestHandler = (ws, req) => {
+function generateScrambleData(): string {
+  return `${new Date().getTime()}|${scramble(_333)}`
+}
 
+export const ScrambleWS: WebsocketRequestHandler = (ws, req) => {
+  ws.send(DATA);
 }
