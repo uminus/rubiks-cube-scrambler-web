@@ -1,3 +1,21 @@
 :root {
     --spacing: 0.3rem;
 }
+
+article > * {
+    pointer-events: none;
+}
+
+article.selected {
+    border: solid;
+}
+
+article > p {
+    margin-bottom: 0;
+}
+
+dialog > article {
+    min-width: 320px;
+    padding: 1rem;
+    text-align: center;
+}

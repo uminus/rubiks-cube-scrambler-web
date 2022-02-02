@@ -12,15 +12,144 @@
   <div id="scrambles">
   </div>
 </main>
-
+<dialog id="dialog">
+  <article>
+    <h1 id="state">Ready</h1>
+    <h1 id="timer">0.000</h1>
+  </article>
+</dialog>
 <script>
+
+
   const SCRAMBLES = document.getElementById("scrambles");
+
+  // TimerState: NULL -- [keypress] --> GetReady -- [1sec] --> GetSet -- [keyup] --> GO -- [keydown] --> NULL
+  const TimerState = {
+    NULL: Symbol("NULL"),
+    GetReady: Symbol("GetReady"),
+    GetSet: Symbol("GetSet"),
+    GO: Symbol("GO"),
+  }
+
+  const STATE = {
+    _selected: null,
+    get selected() {
+      return this._selected;
+    },
+    selected(el) {
+      document.querySelectorAll("article")
+          .forEach(a => a.classList.remove("selected"));
+      if (el) {
+        this._selected = el.id;
+        el.classList.add("selected");
+      } else {
+        this._selected = null;
+      }
+      console.log(`selected: ${this._selected}`);
+    },
+
+    _timerState: TimerState.NULL,
+    _timerReadyTimer: null,
+    _timerStart: null,
+    timerReset() {
+      console.log("Timer Reset");
+      this._timerState = TimerState.NULL;
+      this._timerStart = null;
+      if (this._timerReadyTimer) {
+        clearTimeout(this._timerReadyTimer);
+      }
+    },
+    getReady() {
+      this._timerState = TimerState.GetReady;
+      console.log("GetReady");
+
+      this._timerReadyTimer = setTimeout(() => {
+        console.log("GetSet");
+        this._timerState = TimerState.GetSet;
+      }, 1000);
+
+      dialog.setAttribute("open", "");
+      update();
+    },
+    timerStartOrReset() {
+      if (this._timerState === TimerState.GetSet) {
+        this._timerStart = new Date();
+        this._timerState = TimerState.GO;
+        console.log("GO");
+      } else {
+        this.timerReset();
+        dialog.removeAttribute("open");
+      }
+    },
+    timerStop() {
+      if (this._timerState === TimerState.GO) {
+        const stop = new Date();
+        const ms = stop - this._timerStart;
+        console.log(`time: ${ms} ms.`);
+        const scramble = document.getElementById(this._selected);
+        const time = document.createElement("p");
+        scramble.append(time);
+        time.append(document.createTextNode(`${ms / 1000}`));
+      }
+      this.timerReset();
+    }
+  };
+
+  const dialog = document.getElementById("dialog");
+  dialog.addEventListener("click", () => {
+    if (STATE._timerState === TimerState.GO) {
+      STATE.timerStop();
+    } else {
+      dialog.removeAttribute("open");
+    }
+  });
+  const timer = document.getElementById("timer");
+  const state = document.getElementById("state");
+
+  function update() {
+    switch (STATE._timerState) {
+      case TimerState.GetReady:
+        state.textContent = "Ready";
+        timer.textContent = "0.000";
+        break;
+      case TimerState.GetSet:
+        state.textContent = "Set";
+        break;
+      case TimerState.GO:
+        const now = new Date();
+        state.textContent = "Go!";
+        timer.textContent = "" + (now - STATE._timerStart) / 1000;
+        break;
+
+    }
+    if (dialog.attributes["open"]) {
+      window.requestAnimationFrame(update);
+    }
+  }
+
+  document.body.addEventListener("keydown", (ev) => {
+    const state = STATE._timerState;
+    if (state === TimerState.GO) {
+      STATE.timerStop();
+    }
+
+    if (ev.key === " " && state === TimerState.NULL) {
+      STATE.getReady();
+    }
+  });
+
+  document.body.addEventListener("keyup", (ev) => {
+    if (ev.key === " ") {
+      STATE.timerStartOrReset()
+    }
+  });
 
   function addCard(data) {
     const split = data.split("|");
 
     const fragment = document.createDocumentFragment();
     const article = document.createElement("article");
+    article.id = `scramble_${split[0]}`;
     const header = document.createElement("header");
     fragment.append(article);
     article.append(header);
@@ -28,13 +157,43 @@
     article.append(document.createTextNode(split[1]));
     SCRAMBLES.prepend(fragment);
 
+    article.addEventListener("mousedown", ev => {
+      STATE.selected(ev.target);
+      STATE.getReady();
+    });
+
+    article.addEventListener("mouseup", ev => {
+      STATE.timerStartOrReset();
+    });
+
+    article.addEventListener("touchstart", ev => {
+      STATE.selected(ev.target);
+      STATE.getReady();
+    });
+
+    article.addEventListener("touchend", () => {
+      STATE.timerStartOrReset();
+    });
+
     if (SCRAMBLES.children.length >= 8) {
       SCRAMBLES.removeChild(SCRAMBLES.lastChild);
     }
   }
 
   function connect() {
-    const ws = new WebSocket(`wss://${window.location.host}/ws`);
+    let protocol;
+    switch (location.protocol) {
+      case "http:":
+        protocol = "ws:";
+        break;
+      case "https:":
+        protocol = "wss:";
+        break;
+      default:
+        throw new Error("unsupported protocol.");
+    }
+
+    const ws = new WebSocket(`${protocol}//${window.location.host}/ws`);
     ws.addEventListener("open", ev => {
       addCard(`${new Date().getTime()}|Connected.`);
     });
