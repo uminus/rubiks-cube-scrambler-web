@@ -11,7 +11,8 @@
 <main class="container">
   <div id="scrambles">
   </div>
-  <small><a href="https://twitter.com/uminusus">@uminus</a> • <a href="https://github.com/uminus/rubiks-cube-scrambler-web">Source code</a></small>
+  <small><a href="https://twitter.com/uminusus">@uminus</a> • <a
+      href="https://github.com/uminus/rubiks-cube-scrambler-web">Source code</a></small>
 </main>
 <dialog id="dialog">
   <article>
@@ -20,8 +21,6 @@
   </article>
 </dialog>
 <script>
-
-
   const SCRAMBLES = document.getElementById("scrambles");
 
   // TimerState: NULL -- [keypress] --> GetReady -- [1sec] --> GetSet -- [keyup] --> GO -- [keydown] --> NULL
@@ -33,6 +32,21 @@
   }
 
   const STATE = {
+    _ws: null,
+    get ws() {
+      return this._ws;
+    },
+
+    _token: null,
+    get token() {
+      return this._token
+    },
+
+    _user: null,
+    get user() {
+      return this._user
+    },
+
     _selected: null,
     get selected() {
       return this._selected;
@@ -89,8 +103,19 @@
         console.log(`time: ${ms} ms.`);
         const scramble = document.getElementById(this._selected);
         const time = document.createElement("p");
+        time.className = "time";
         scramble.append(time);
         time.append(document.createTextNode(`${ms / 1000}`));
+
+        STATE.ws.send(JSON.stringify({
+          type: "solved",
+          token: STATE.token,
+          payload: {
+            scrambleId: this._selected,
+            time: ms,
+            timestamp: new Date().getTime(),
+          },
+        }));
       }
       this.timerReset();
     }
@@ -145,17 +170,15 @@
     }
   });
 
-  function addCard(data) {
-    const split = data.split("|");
-
+  function addCard(timestamp, scramble, id) {
     const fragment = document.createDocumentFragment();
     const article = document.createElement("article");
-    article.id = `scramble_${split[0]}`;
+    article.id = id || `scramble_${timestamp}`;
     const header = document.createElement("header");
     fragment.append(article);
     article.append(header);
-    header.append(document.createTextNode(new Date(parseInt(split[0])).toTimeString()))
-    article.append(document.createTextNode(split[1]));
+    header.append(document.createTextNode(new Date(timestamp).toTimeString()));
+    article.append(document.createTextNode(scramble));
     SCRAMBLES.prepend(fragment);
 
     article.addEventListener("mousedown", ev => {
@@ -195,12 +218,13 @@
     }
 
     const ws = new WebSocket(`${protocol}//${window.location.host}/ws`);
+    STATE._ws = ws;
     ws.addEventListener("open", ev => {
-      addCard(`${new Date().getTime()}|Connected.`);
+      // addCard(`${new Date().getTime()}|Connected.`);
     });
 
     ws.addEventListener("close", ev => {
-      addCard(`${new Date().getTime()}|Disconnected.`);
+      addCard(new Date().getTime(), "Disconnected");
       setTimeout(() => {
         connect();
       }, 5000);
@@ -208,12 +232,47 @@
 
     ws.addEventListener("error", ev => {
       console.error(ev);
-      addCard(`${new Date().getTime()}|ERROR.`);
+      addCard(new Date().getTime(), "ERROR");
     });
 
     ws.addEventListener("message", ev => {
-      console.log(ev.data);
-      addCard(ev.data);
+      const data = JSON.parse(ev.data);
+      console.log(data);
+      if (data.type === "scramble") {
+        const {id, timestamp, scramble} = data.payload;
+        addCard(timestamp, scramble, id);
+      }
+
+      if (data.type === "user") {
+        const {id, token} = data.payload;
+        addCard(new Date().getTime(), `user: ${id}`);
+        STATE._user = id;
+        STATE._token = token;
+        ws.send(JSON.stringify({type: "verify", token, payload: {dev: "dev"}}))
+      }
+
+      if (data.type === "times") {
+        const {scramble: scrambleId, times} = data.payload;
+
+        const scramble = document.getElementById(scrambleId);
+        const fragment = document.createDocumentFragment();
+        scramble.querySelectorAll(".time")
+            .forEach(t => scramble.removeChild(t));
+        times.forEach((t, i) => {
+          const time = document.createElement("p");
+          time.className = "time";
+          if (STATE.user === t.user) {
+            const mark = document.createElement("ins");
+            mark.append(document.createTextNode(`${i + 1}. ${t.user}: ${t.time / 1000}`));
+            time.append(mark);
+          } else {
+            time.append(document.createTextNode(`${i + 1}. ${t.user}: ${t.time / 1000}`));
+          }
+
+          fragment.append(time);
+        });
+        scramble.append(fragment);
+      }
     });
   }
 

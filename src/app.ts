@@ -7,7 +7,11 @@ import expressWs from "express-ws";
 import {ScrambleWS} from "./routes/ScrambleWS";
 
 
-export const expressWS = expressWs(express());
+export const expressWS = expressWs(express(), undefined, {
+  wsOptions: {
+    perMessageDeflate: true
+  }
+});
 export const app = expressWS.app;
 
 app.use(morgan('dev'));

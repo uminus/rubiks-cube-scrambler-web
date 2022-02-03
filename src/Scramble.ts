@@ -12,7 +12,7 @@ function random(l: number): () => number {
   return () => Math.floor(Math.random() * l);
 }
 
-export function scramble(type: ScrambleType, length: number = 20): String {
+export function scramble(type: ScrambleType, length: number = 20): string {
   const randL = random(type.letters.length);
   const randM = random(type.modifiers.length);
 
