@@ -3,29 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "tsc",
-    "dev": "ts-node-dev ./src/app.ts --watch",
-    "start": "node ./dist/app.js"
+    "build": "npm run --workspaces build --if-present",
+    "start": "node ./packages/backend/dist/app.js",
+    "dev": "pnpm dev --filter ."
   },
-  "dependencies": {
-    "cookie-parser": "~1.4.4",
-    "cron": "^1.8.2",
-    "debug": "~2.6.9",
-    "express": "~4.16.1",
-    "express-ws": "^5.0.2",
-    "jsonwebtoken": "^8.5.1",
-    "morgan": "~1.9.1",
-    "nanoid": "^3.2.0"
-  },
-  "devDependencies": {
-    "@types/cookie-parser": "^1.4.2",
-    "@types/cron": "^1.7.3",
-    "@types/express": "^4.17.13",
-    "@types/express-ws": "^3.0.1",
-    "@types/jsonwebtoken": "^8.5.8",
-    "@types/morgan": "^1.9.3",
-    "@types/node": "^17.0.13",
-    "ts-node-dev": "^1.1.8",
-    "typescript": "^4.5.5"
-  }
+  "workspaces": [
+    "packages/*"
+  ]
 }
