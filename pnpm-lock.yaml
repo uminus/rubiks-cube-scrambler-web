@@ -25,6 +25,7 @@ importers:
       jsonwebtoken: ^8.5.1
       morgan: ~1.9.1
       nanoid: ^3.2.0
+      shared: file:../shared
       ts-node-dev: ^1.1.8
       typescript: ^4.5.5
     dependencies:
@@ -36,6 +37,7 @@ importers:
       jsonwebtoken: 8.5.1
       morgan: 1.9.1
       nanoid: 3.2.0
+      shared: link:../shared
     devDependencies:
       '@types/cookie-parser': 1.4.2
       '@types/cron': 1.7.3
@@ -49,31 +51,37 @@ importers:
 
   packages/frontend:
     specifiers:
-      '@types/react': ^17.0.39
-      '@types/react-dom': ^17.0.11
       css-loader: ^6.6.0
       html-webpack-plugin: ^5.5.0
-      react: ^17.0.2
-      react-dom: ^17.0.2
+      preact: ^10.6.5
+      shared: file:../shared
       style-loader: ^3.3.1
       ts-loader: ^9.2.6
       typescript: ^4.5.5
       webpack: ^5.68.0
       webpack-bundle-analyzer: ^4.5.0
       webpack-cli: ^4.9.2
+    dependencies:
+      preact: 10.6.5
+      shared: link:../shared
     devDependencies:
-      '@types/react': 17.0.39
-      '@types/react-dom': 17.0.11
       css-loader: 6.6.0_webpack@5.68.0
       html-webpack-plugin: 5.5.0_webpack@5.68.0
-      react: 17.0.2
-      react-dom: 17.0.2_react@17.0.2
       style-loader: 3.3.1_webpack@5.68.0
       ts-loader: 9.2.6_typescript@4.5.5+webpack@5.68.0
       typescript: 4.5.5
       webpack: 5.68.0_webpack-cli@4.9.2
       webpack-bundle-analyzer: 4.5.0
       webpack-cli: 4.9.2_ffb4ca0d42777c3f95985c39e374aaf9
+
+  packages/shared:
+    specifiers:
+      tslib: ^2.3.1
+      typescript: ^4.5.5
+    dependencies:
+      tslib: 2.3.1
+    devDependencies:
+      typescript: 4.5.5
 
 packages:
 
@@ -183,34 +191,12 @@ packages:
     resolution: {integrity: sha512-Y86MAxASe25hNzlDbsviXl8jQHb0RDvKt4c40ZJQ1Don0AAL0STLZSs4N+6gLEO55pedy7r2cLwS+ZDxPm/2Bw==}
     dev: true
 
-  /@types/prop-types/15.7.4:
-    resolution: {integrity: sha512-rZ5drC/jWjrArrS8BR6SIr4cWpW09RNTYt9AMZo3Jwwif+iacXAqgVjm0B0Bv/S1jhDXKHqRVNCbACkJ89RAnQ==}
-    dev: true
-
   /@types/qs/6.9.7:
     resolution: {integrity: sha512-FGa1F62FT09qcrueBA6qYTrJPVDzah9a+493+o2PCXsesWHIn27G98TsSMs3WPNbZIEj4+VJf6saSFpvD+3Zsw==}
     dev: true
 
   /@types/range-parser/1.2.4:
     resolution: {integrity: sha512-EEhsLsD6UsDM1yFhAvy0Cjr6VwmpMWqFBCb9w07wVugF7w9nfajxLuVmngTIpgS6svCnm6Vaw+MZhoDCKnOfsw==}
-    dev: true
-
-  /@types/react-dom/17.0.11:
-    resolution: {integrity: sha512-f96K3k+24RaLGVu/Y2Ng3e1EbZ8/cVJvypZWd7cy0ofCBaf2lcM46xNhycMZ2xGwbBjRql7hOlZ+e2WlJ5MH3Q==}
-    dependencies:
-      '@types/react': 17.0.39
-    dev: true
-
-  /@types/react/17.0.39:
-    resolution: {integrity: sha512-UVavlfAxDd/AgAacMa60Azl7ygyQNRwC/DsHZmKgNvPmRR5p70AJ5Q9EAmL2NWOJmeV+vVUI4IAP7GZrN8h8Ug==}
-    dependencies:
-      '@types/prop-types': 15.7.4
-      '@types/scheduler': 0.16.2
-      csstype: 3.0.10
-    dev: true
-
-  /@types/scheduler/0.16.2:
-    resolution: {integrity: sha512-hppQEBDmlwhFAXKJX2KnWLYu5yMfi91yazPb2l+lbJiwW+wdo1gNeRA+3RgNSO39WYX2euey41KEwnqesU2Jew==}
     dev: true
 
   /@types/serve-static/1.13.10:
@@ -701,10 +687,6 @@ packages:
     resolution: {integrity: sha512-/Tb/JcjK111nNScGob5MNtsntNM1aCNUDipB/TkwZFhyDrrE47SOx/18wF2bbjgc3ZzCSKW1T5nt5EbFoAz/Vg==}
     engines: {node: '>=4'}
     hasBin: true
-    dev: true
-
-  /csstype/3.0.10:
-    resolution: {integrity: sha512-2u44ZG2OcNUO9HDp/Jl8C07x6pU/eTR3ncV91SiK3dhG9TWvRVsCoJw14Ckx5DgWkzGA3waZWO3d7pgqpUI/XA==}
     dev: true
 
   /debug/2.6.9:
@@ -1208,10 +1190,6 @@ packages:
       supports-color: 8.1.1
     dev: true
 
-  /js-tokens/4.0.0:
-    resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
-    dev: true
-
   /json-parse-better-errors/1.0.2:
     resolution: {integrity: sha512-mrqyZKfX5EhL7hvqcV6WG1yYjnjeuYDzDhhcAAUrq8Po85NBQBJP+ZDUT75qZQ98IkUoBqdkExkukOU7Ts2wrw==}
     dev: true
@@ -1298,13 +1276,6 @@ packages:
 
   /lodash/4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
-    dev: true
-
-  /loose-envify/1.4.0:
-    resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
-    hasBin: true
-    dependencies:
-      js-tokens: 4.0.0
     dev: true
 
   /lower-case/2.0.2:
@@ -1460,11 +1431,6 @@ packages:
     resolution: {integrity: sha512-it1vE95zF6dTT9lBsYbxvqh0Soy4SPowchj0UBGj/V6cTPnXXtQOPUbhZ6CmGzAD/rW22LQK6E96pcdJXk4A4w==}
     dependencies:
       boolbase: 1.0.0
-    dev: true
-
-  /object-assign/4.1.1:
-    resolution: {integrity: sha1-IQmtx5ZYh8/AXLvUQsrIv7s2CGM=}
-    engines: {node: '>=0.10.0'}
     dev: true
 
   /on-finished/2.3.0:
@@ -1636,6 +1602,10 @@ packages:
       source-map-js: 1.0.2
     dev: true
 
+  /preact/10.6.5:
+    resolution: {integrity: sha512-i+LXM6JiVjQXSt2jG2vZZFapGpCuk1fl8o6ii3G84MA3xgj686FKjs4JFDkmUVhtxyq21+4ay74zqPykz9hU6w==}
+    dev: false
+
   /pretty-error/4.0.0:
     resolution: {integrity: sha512-AoJ5YMAcXKYxKhuJGdcvse+Voc6v1RgnsR3nWcYU7q4t6z0Q6T86sv5Zq8VIRbOWWFpvdGE83LtdSMNd+6Y0xw==}
     dependencies:
@@ -1681,25 +1651,6 @@ packages:
       iconv-lite: 0.4.23
       unpipe: 1.0.0
     dev: false
-
-  /react-dom/17.0.2_react@17.0.2:
-    resolution: {integrity: sha512-s4h96KtLDUQlsENhMn1ar8t2bEa+q/YAtj8pPPdIjPDGBDIVNsrD9aXNWqspUe6AzKCIG0C1HZZLqLV7qpOBGA==}
-    peerDependencies:
-      react: 17.0.2
-    dependencies:
-      loose-envify: 1.4.0
-      object-assign: 4.1.1
-      react: 17.0.2
-      scheduler: 0.20.2
-    dev: true
-
-  /react/17.0.2:
-    resolution: {integrity: sha512-gnhPt75i/dq/z3/6q/0asP78D0u592D5L1pd7M8P+dck6Fu/jJeL6iVVK23fptSUZj8Vjf++7wXA8UNclGQcbA==}
-    engines: {node: '>=0.10.0'}
-    dependencies:
-      loose-envify: 1.4.0
-      object-assign: 4.1.1
-    dev: true
 
   /readdirp/3.6.0:
     resolution: {integrity: sha512-hOS089on8RduqdbhvQ5Z37A0ESjsqz6qnRcffsMU3495FuTdqSm+7bhJ29JvIOsBDEEnan5DPu9t3To9VRlMzA==}
@@ -1771,13 +1722,6 @@ packages:
   /safer-buffer/2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
     dev: false
-
-  /scheduler/0.20.2:
-    resolution: {integrity: sha512-2eWfGgAqqWFGqtdMmcL5zCMK1U8KlXv8SQFGglL3CEtd0aDVDWgeF/YoCmvln55m5zSk3J/20hTaSBeSObsQDQ==}
-    dependencies:
-      loose-envify: 1.4.0
-      object-assign: 4.1.1
-    dev: true
 
   /schema-utils/3.1.1:
     resolution: {integrity: sha512-Y5PQxS4ITlC+EahLuXaY86TXfR7Dc5lw294alXOq86JAHCihAIZfqv8nNCWvaEJvaC51uN9hbLGeV0cFBdH+Fw==}
@@ -2094,7 +2038,6 @@ packages:
 
   /tslib/2.3.1:
     resolution: {integrity: sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==}
-    dev: true
 
   /type-is/1.6.18:
     resolution: {integrity: sha512-TkRKr9sUTxEH8MdfuCSP7VizJyzRNMjj2J2do2Jr3Kym598JVdEksuzPQCnlFPW4ky9Q+iA+ma9BGm06XQBy8g==}

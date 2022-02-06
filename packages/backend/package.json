@@ -17,7 +17,8 @@
     "express-ws": "^5.0.2",
     "jsonwebtoken": "^8.5.1",
     "morgan": "~1.9.1",
-    "nanoid": "^3.2.0"
+    "nanoid": "^3.2.0",
+    "shared": "file:../shared"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.2",

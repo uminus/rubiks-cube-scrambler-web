@@ -1,4 +1,5 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 
 <head>
   <meta name="viewport" content="width=device-width">
@@ -8,276 +9,269 @@
 </head>
 
 <body>
-<main class="container">
-  <section id="root"></section>
-  <div id="scrambles">
-  </div>
-  <small><a href="https://twitter.com/uminusus">@uminus</a> : <a
-      href="https://github.com/uminus/rubiks-cube-scrambler-web">Source code</a></small>
-</main>
-<dialog id="dialog">
-  <article>
-    <h1 id="state">Ready</h1>
-    <h1 id="timer">0.000</h1>
-  </article>
-</dialog>
+<div id="root"></div>
 <script>
-  const SCRAMBLES = document.getElementById("scrambles");
+  try {
 
-  // TimerState: NULL -- [keypress] --> GetReady -- [1sec] --> GetSet -- [keyup] --> GO -- [keydown] --> NULL
-  const TimerState = {
-    NULL: Symbol("NULL"),
-    GetReady: Symbol("GetReady"),
-    GetSet: Symbol("GetSet"),
-    GO: Symbol("GO"),
-  }
+    const SCRAMBLES = document.getElementById("scrambles");
 
-  const STATE = {
-    _ws: null,
-    get ws() {
-      return this._ws;
-    },
+    // TimerState: NULL -- [keypress] --> GetReady -- [1sec] --> GetSet -- [keyup] --> GO -- [keydown] --> NULL
+    const TimerState = {
+      NULL: Symbol("NULL"),
+      GetReady: Symbol("GetReady"),
+      GetSet: Symbol("GetSet"),
+      GO: Symbol("GO"),
+    };
 
-    _token: null,
-    get token() {
-      return this._token
-    },
+    const STATE = {
+      _ws: null,
+      get ws() {
+        return this._ws;
+      },
 
-    _user: null,
-    get user() {
-      return this._user
-    },
+      _token: null,
+      get token() {
+        return this._token
+      },
 
-    _selected: null,
-    get selected() {
-      return this._selected;
-    },
-    selected(el) {
-      document.querySelectorAll("article")
-          .forEach(a => a.classList.remove("selected"));
-      if (el) {
-        this._selected = el.id;
-        el.classList.add("selected");
-      } else {
-        this._selected = null;
-      }
-      console.log(`selected: ${this._selected}`);
-    },
+      _user: null,
+      get user() {
+        return this._user
+      },
 
-    _timerState: TimerState.NULL,
-    _timerReadyTimer: null,
-    _timerStart: null,
-    timerReset() {
-      console.log("Timer Reset");
-      this._timerState = TimerState.NULL;
-      this._timerStart = null;
-      if (this._timerReadyTimer) {
-        clearTimeout(this._timerReadyTimer);
-      }
-    },
-    getReady() {
-      this._timerState = TimerState.GetReady;
-      console.log("GetReady");
+      _selected: null,
+      get selected() {
+        return this._selected;
+      },
+      selected(el) {
+        document.querySelectorAll("article")
+            .forEach(a => a.classList.remove("selected"));
+        if (el) {
+          this._selected = el.id;
+          el.classList.add("selected");
+        } else {
+          this._selected = null;
+        }
+        console.log(`selected: ${this._selected}`);
+      },
 
-      this._timerReadyTimer = setTimeout(() => {
-        console.log("GetSet");
-        this._timerState = TimerState.GetSet;
-      }, 1000);
+      _timerState: TimerState.NULL,
+      _timerReadyTimer: null,
+      _timerStart: null,
+      timerReset() {
+        console.log("Timer Reset");
+        this._timerState = TimerState.NULL;
+        this._timerStart = null;
+        if (this._timerReadyTimer) {
+          clearTimeout(this._timerReadyTimer);
+        }
+      },
+      getReady() {
+        this._timerState = TimerState.GetReady;
+        console.log("GetReady");
 
-      dialog.setAttribute("open", "");
-      update();
-    },
-    timerStartOrReset() {
-      if (this._timerState === TimerState.GetSet) {
-        this._timerStart = new Date();
-        this._timerState = TimerState.GO;
-        console.log("GO");
-      } else {
-        this.timerReset();
-        dialog.removeAttribute("open");
-      }
-    },
-    timerStop() {
-      if (this._timerState === TimerState.GO) {
-        const stop = new Date();
-        const ms = stop - this._timerStart;
-        console.log(`time: ${ms} ms.`);
-        const scramble = document.getElementById(this._selected);
-        const time = document.createElement("p");
-        time.className = "time";
-        scramble.append(time);
-        time.append(document.createTextNode(`${ms / 1000}`));
+        this._timerReadyTimer = setTimeout(() => {
+          console.log("GetSet");
+          this._timerState = TimerState.GetSet;
+        }, 1000);
 
-        STATE.ws.send(JSON.stringify({
-          type: "solved",
-          token: STATE.token,
-          payload: {
-            scrambleId: this._selected,
-            time: ms,
-            timestamp: new Date().getTime(),
-          },
-        }));
-      }
-      this.timerReset();
-    }
-  };
-
-  const dialog = document.getElementById("dialog");
-  dialog.addEventListener("click", () => {
-    if (STATE._timerState === TimerState.GO) {
-      STATE.timerStop();
-    } else {
-      dialog.removeAttribute("open");
-    }
-  });
-  const timer = document.getElementById("timer");
-  const state = document.getElementById("state");
-
-  function update() {
-    switch (STATE._timerState) {
-      case TimerState.GetReady:
-        state.textContent = "Ready";
-        timer.textContent = "0.000";
-        break;
-      case TimerState.GetSet:
-        state.textContent = "Set";
-        break;
-      case TimerState.GO:
-        const now = new Date();
-        state.textContent = "Go!";
-        timer.textContent = "" + (now - STATE._timerStart) / 1000;
-        break;
-
-    }
-    if (dialog.attributes["open"]) {
-      window.requestAnimationFrame(update);
-    }
-  }
-
-  document.body.addEventListener("keydown", (ev) => {
-    const state = STATE._timerState;
-    if (state === TimerState.GO) {
-      STATE.timerStop();
-    }
-
-    if (ev.key === " " && state === TimerState.NULL) {
-      STATE.getReady();
-    }
-  });
-
-  document.body.addEventListener("keyup", (ev) => {
-    if (ev.key === " ") {
-      STATE.timerStartOrReset()
-    }
-  });
-
-  function addCard(timestamp, scramble, id) {
-    const fragment = document.createDocumentFragment();
-    const article = document.createElement("article");
-    article.id = id || `scramble_${timestamp}`;
-    const header = document.createElement("header");
-    fragment.append(article);
-    article.append(header);
-    header.append(document.createTextNode(new Date(timestamp).toTimeString()));
-    article.append(document.createTextNode(scramble));
-    SCRAMBLES.prepend(fragment);
-
-    article.addEventListener("mousedown", ev => {
-      STATE.selected(ev.target);
-      STATE.getReady();
-    });
-
-    article.addEventListener("mouseup", ev => {
-      STATE.timerStartOrReset();
-    });
-
-    article.addEventListener("touchstart", ev => {
-      STATE.selected(ev.target);
-      STATE.getReady();
-    });
-
-    article.addEventListener("touchend", () => {
-      STATE.timerStartOrReset();
-    });
-
-    if (SCRAMBLES.children.length >= 8) {
-      SCRAMBLES.removeChild(SCRAMBLES.lastChild);
-    }
-  }
-
-  function connect() {
-    let protocol;
-    switch (location.protocol) {
-      case "http:":
-        protocol = "ws:";
-        break;
-      case "https:":
-        protocol = "wss:";
-        break;
-      default:
-        throw new Error("unsupported protocol.");
-    }
-
-    const ws = new WebSocket(`${protocol}//${window.location.host}/ws`);
-    STATE._ws = ws;
-    ws.addEventListener("open", ev => {
-      // addCard(`${new Date().getTime()}|Connected.`);
-    });
-
-    ws.addEventListener("close", ev => {
-      addCard(new Date().getTime(), "Disconnected");
-      setTimeout(() => {
-        connect();
-      }, 5000);
-    });
-
-    ws.addEventListener("error", ev => {
-      console.error(ev);
-      addCard(new Date().getTime(), "ERROR");
-    });
-
-    ws.addEventListener("message", ev => {
-      const data = JSON.parse(ev.data);
-      console.log(data);
-      if (data.type === "scramble") {
-        const {id, timestamp, scramble} = data.payload;
-        addCard(timestamp, scramble, id);
-      }
-
-      if (data.type === "user") {
-        const {id, token} = data.payload;
-        addCard(new Date().getTime(), `user: ${id}`);
-        STATE._user = id;
-        STATE._token = token;
-        ws.send(JSON.stringify({type: "verify", token, payload: {dev: "dev"}}))
-      }
-
-      if (data.type === "times") {
-        const {scramble: scrambleId, times} = data.payload;
-
-        const scramble = document.getElementById(scrambleId);
-        const fragment = document.createDocumentFragment();
-        scramble.querySelectorAll(".time")
-            .forEach(t => scramble.removeChild(t));
-        times.forEach((t, i) => {
+        dialog.setAttribute("open", "");
+        update();
+      },
+      timerStartOrReset() {
+        if (this._timerState === TimerState.GetSet) {
+          this._timerStart = new Date();
+          this._timerState = TimerState.GO;
+          console.log("GO");
+        } else {
+          this.timerReset();
+          dialog.removeAttribute("open");
+        }
+      },
+      timerStop() {
+        if (this._timerState === TimerState.GO) {
+          const stop = new Date();
+          const ms = stop - this._timerStart;
+          console.log(`time: ${ms} ms.`);
+          const scramble = document.getElementById(this._selected);
           const time = document.createElement("p");
           time.className = "time";
-          if (STATE.user === t.user) {
-            const mark = document.createElement("ins");
-            mark.append(document.createTextNode(`${i + 1}. ${t.user}: ${t.time / 1000}`));
-            time.append(mark);
-          } else {
-            time.append(document.createTextNode(`${i + 1}. ${t.user}: ${t.time / 1000}`));
-          }
+          scramble.append(time);
+          time.append(document.createTextNode(`${ms / 1000}`));
 
-          fragment.append(time);
-        });
-        scramble.append(fragment);
+          STATE.ws.send(JSON.stringify({
+            type: "solved",
+            token: STATE.token,
+            payload: {
+              scrambleId: this._selected,
+              time: ms,
+              timestamp: new Date().getTime(),
+            },
+          }));
+        }
+        this.timerReset();
+      }
+    };
+
+    const dialog = document.getElementById("dialog");
+    dialog.addEventListener("click", () => {
+      if (STATE._timerState === TimerState.GO) {
+        STATE.timerStop();
+      } else {
+        dialog.removeAttribute("open");
       }
     });
-  }
+    const timer = document.getElementById("timer");
+    const state = document.getElementById("state");
 
-  connect();
+    function update() {
+      switch (STATE._timerState) {
+        case TimerState.GetReady:
+          state.textContent = "Ready";
+          timer.textContent = "0.000";
+          break;
+        case TimerState.GetSet:
+          state.textContent = "Set";
+          break;
+        case TimerState.GO:
+          const now = new Date();
+          state.textContent = "Go!";
+          timer.textContent = "" + (now - STATE._timerStart) / 1000;
+          break;
+
+      }
+      if (dialog.attributes["open"]) {
+        window.requestAnimationFrame(update);
+      }
+    }
+
+    document.body.addEventListener("keydown", (ev) => {
+      const state = STATE._timerState;
+      if (state === TimerState.GO) {
+        STATE.timerStop();
+      }
+
+      if (ev.key === " " && state === TimerState.NULL) {
+        STATE.getReady();
+      }
+    });
+
+    document.body.addEventListener("keyup", (ev) => {
+      if (ev.key === " ") {
+        STATE.timerStartOrReset()
+      }
+    });
+
+    function addCard(timestamp, scramble, id) {
+      const fragment = document.createDocumentFragment();
+      const article = document.createElement("article");
+      article.id = id || `scramble_${timestamp}`;
+      const header = document.createElement("header");
+      fragment.append(article);
+      article.append(header);
+      header.append(document.createTextNode(new Date(timestamp).toTimeString()));
+      article.append(document.createTextNode(scramble));
+      SCRAMBLES.prepend(fragment);
+
+      article.addEventListener("mousedown", ev => {
+        STATE.selected(ev.target);
+        STATE.getReady();
+      });
+
+      article.addEventListener("mouseup", ev => {
+        STATE.timerStartOrReset();
+      });
+
+      article.addEventListener("touchstart", ev => {
+        STATE.selected(ev.target);
+        STATE.getReady();
+      });
+
+      article.addEventListener("touchend", () => {
+        STATE.timerStartOrReset();
+      });
+
+      if (SCRAMBLES.children.length >= 8) {
+        SCRAMBLES.removeChild(SCRAMBLES.lastChild);
+      }
+    }
+
+    function connect() {
+      let protocol;
+      switch (location.protocol) {
+        case "http:":
+          protocol = "ws:";
+          break;
+        case "https:":
+          protocol = "wss:";
+          break;
+        default:
+          throw new Error("unsupported protocol.");
+      }
+
+      const ws = new WebSocket(`${protocol}//${window.location.host}/ws`);
+      STATE._ws = ws;
+      ws.addEventListener("open", ev => {
+        // addCard(`${new Date().getTime()}|Connected.`);
+      });
+
+      ws.addEventListener("close", ev => {
+        addCard(new Date().getTime(), "Disconnected");
+        setTimeout(() => {
+          connect();
+        }, 5000);
+      });
+
+      ws.addEventListener("error", ev => {
+        console.error(ev);
+        addCard(new Date().getTime(), "ERROR");
+      });
+
+      ws.addEventListener("message", ev => {
+        const data = JSON.parse(ev.data);
+        console.log(data);
+        if (data.type === "scramble") {
+          const {id, timestamp, scramble} = data.payload;
+          addCard(timestamp, scramble, id);
+        }
+
+        if (data.type === "user") {
+          const {id, token} = data.payload;
+          addCard(new Date().getTime(), `user: ${id}`);
+          STATE._user = id;
+          STATE._token = token;
+          ws.send(JSON.stringify({type: "verify", token, payload: {dev: "dev"}}))
+        }
+
+        if (data.type === "times") {
+          const {scramble: scrambleId, times} = data.payload;
+
+          const scramble = document.getElementById(scrambleId);
+          const fragment = document.createDocumentFragment();
+          scramble.querySelectorAll(".time")
+              .forEach(t => scramble.removeChild(t));
+          times.forEach((t, i) => {
+            const time = document.createElement("p");
+            time.className = "time";
+            if (STATE.user === t.user) {
+              const mark = document.createElement("ins");
+              mark.append(document.createTextNode(`${i + 1}. ${t.user}: ${t.time / 1000}`));
+              time.append(mark);
+            } else {
+              time.append(document.createTextNode(`${i + 1}. ${t.user}: ${t.time / 1000}`));
+            }
+
+            fragment.append(time);
+          });
+          scramble.append(fragment);
+        }
+      });
+    }
+
+    connect();
+  } catch (e) {
+    console.error(e);
+  }
 </script>
 </body>
 

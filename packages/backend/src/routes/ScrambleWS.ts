@@ -5,7 +5,8 @@ import {_333, scramble} from "../Scramble";
 import {expressWS} from "../app";
 import {nanoid} from "nanoid";
 import {JwtPayload, sign, verify} from "jsonwebtoken";
-import {DB, Scramble, Solve} from "../DummyDB";
+import {DB} from "../DummyDB";
+import {Message, Scramble} from "shared";
 
 
 let DATA = generateScrambleData();
@@ -23,7 +24,7 @@ function broadcast(msg: string): void {
     });
 }
 
-function generateScrambleData(): ScramblePayload {
+function generateScrambleData(): Scramble {
   const data = {
     id: nanoid(),
     timestamp: new Date().getTime(),
@@ -69,7 +70,7 @@ export const ScrambleWS: WebsocketRequestHandler = (ws, req) => {
         let verified = verify(token!!, "my-secret") as JwtPayload;
         if (!verified) return;
 
-        const p = payload as SolvedPayload;
+        const p = payload as any;
         const [scramble, solves] = DB.solve(p.scrambleId, {
           user: verified.user as string,
           time: payload.time,
@@ -89,13 +90,4 @@ export const ScrambleWS: WebsocketRequestHandler = (ws, req) => {
       console.warn(e.message);
     }
   });
-}
-
-export type ScramblePayload = Scramble;
-export type SolvedPayload = Solve & { scrambleId: string };
-
-export interface Message<P extends object> {
-  type: "user" | "verify" | "scramble" | "solved" | "times";
-  token?: string;
-  payload?: P;
 }

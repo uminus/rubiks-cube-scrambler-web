@@ -5,14 +5,20 @@
 Send a scramble every 30 seconds using WebSocket.
 And the scramble sent is the same for all clients.
 
+## Requirements
+- nodejs v17+
+- npm v7+
+- pnpm v5+ (Only required for development.)
 
 ## Usage
 ```shell
 npm install
-npm run dev
+npm build
+npm run start
 ```
 
 ## API
+TBD
 ### WebSocket /ws
 Message format: `EpochTime|SCRAMBLE`
 

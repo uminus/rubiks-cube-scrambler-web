@@ -3,13 +3,14 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "clean": "rimraf ./packages/backend/dist ./packages/frontend/dist",
+    "clean": "rimraf ./packages/shared/dist ./packages/backend/dist ./packages/frontend/dist",
     "prebuild": "npm run clean",
     "build": "npm run --workspaces build --if-present",
     "start": "node ./packages/backend/dist/app.js",
     "dev": "pnpm dev --filter ."
   },
   "workspaces": [
+    "packages/shared",
     "packages/*"
   ],
   "devDependencies": {

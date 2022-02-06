@@ -3,8 +3,9 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
 
 module.exports = (env, argv) => {
-  const isDev = argv.mode !== "production";
+  const isProd = argv.mode === "production";
   return {
+    "devtool": isProd ? false : "source-map",
     entry: './src/index.tsx',
     module: {
       rules: [
@@ -33,7 +34,7 @@ module.exports = (env, argv) => {
           inject: true,
           template: path.resolve(__dirname, 'public/index.html'),
         },
-        !isDev ? {
+        isProd ? {
           minify: {
             removeComments: true,
             collapseWhitespace: true,
@@ -47,7 +48,7 @@ module.exports = (env, argv) => {
             minifyURLs: true,
           },
         } : undefined)),
-      new BundleAnalyzerPlugin({analyzerMode: isDev ? "static" : "disabled"})
+      new BundleAnalyzerPlugin({analyzerMode: isProd ? "static" : "disabled"})
     ],
   };
 }
