@@ -1,4 +1,7 @@
-export function connect() {
+import {Dispatch} from "./model/Store";
+import {Message, Scramble} from "shared";
+
+export function connect(dispatch: Dispatch) {
   let protocol: string;
   switch (location.protocol) {
     case "http:":
@@ -19,7 +22,7 @@ export function connect() {
   ws.addEventListener("close", ev => {
     console.log("on close");
     setTimeout(() => {
-      connect();
+      connect(dispatch);
     }, 5000);
   });
 
@@ -30,8 +33,11 @@ export function connect() {
   ws.addEventListener("message", ev => {
     const data = JSON.parse(ev.data);
     console.log(data);
+    dispatch({type: "debug"});
+
     if (data.type === "scramble") {
-      const {id, timestamp, scramble} = data.payload;
+      const {payload} = data as Message<Scramble>;
+      dispatch({type: "scramble", payload});
     }
 
     if (data.type === "user") {

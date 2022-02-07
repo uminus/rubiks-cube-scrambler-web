@@ -13,7 +13,7 @@ And the scramble sent is the same for all clients.
 ## Usage
 ```shell
 npm install
-npm build
+npm run build
 npm run start
 ```
 

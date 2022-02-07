@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "destroy": "rimraf ./packages/shared/node_modules ./packages/backend/node_modules ./packages/frontend/node_modules ./node_modules",
     "clean": "rimraf ./packages/shared/dist ./packages/backend/dist ./packages/frontend/dist",
     "prebuild": "npm run clean",
     "build": "npm run --workspaces build --if-present",

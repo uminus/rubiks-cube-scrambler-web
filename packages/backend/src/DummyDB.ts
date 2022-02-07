@@ -7,7 +7,6 @@ export const DB = new class {
     this._solves.set(scramble.id, [scramble, []]);
     console.log(`scramble: ${scramble.id}`);
 
-
     setTimeout(() => {
       console.log(`rm: scramble: ${scramble.id}`);
       this._solves.delete(scramble.id);
