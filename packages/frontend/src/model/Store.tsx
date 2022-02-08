@@ -11,11 +11,13 @@ export interface Action<P> {
 
 export interface State {
   scramble?: Scramble,
+  scrambles: Array<Scramble>;
   counter: number;
 }
 
 const INITIAL_STATE: State = {
   scramble: undefined,
+  scrambles: [],
   counter: 0
 };
 
@@ -25,7 +27,9 @@ const ACTIONS = new Map<ActionType, Reducer<State, Action<any>>>([
     return Object.assign({}, prev, {counter: prev.counter + 1});
   }],
   ["scramble", (prev, {payload}: Action<any>) => {
-    return Object.assign({}, prev, {scramble: payload});
+    const next = prev.scrambles.slice();
+    next.unshift(payload);
+    return Object.assign({}, prev, {scrambles: next.slice(0, 8)});
   }],
 ]);
 
