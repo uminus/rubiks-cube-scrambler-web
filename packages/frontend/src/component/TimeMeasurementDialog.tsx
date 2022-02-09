@@ -1,12 +1,10 @@
-import {useCallback, useContext, useEffect, useReducer, useRef, useState} from "preact/compat";
-import {Store} from "../model/Store";
+import {useCallback, useContext, useEffect, useReducer, useRef} from "preact/compat";
 import {Timer} from "../model/TimerState";
+import {Scramble} from "shared";
 
-export const TimeMeasurementDialog = () => {
-  const [isOpen, set] = useState(true);
-  const {state, dispatch} = useContext(Store);
-
+export const TimeMeasurementDialog = ({scramble, onClose}: { scramble?: Scramble, onClose: () => void }) => {
   const {state: timerState, timer} = useContext(Timer);
+
   const [time, onTick] = useReducer((state, event) => {
     const [start, end] = timer!;
     if (!start) {
@@ -18,12 +16,12 @@ export const TimeMeasurementDialog = () => {
     }
   }, 0.0);
 
-  useAnimationFrame(isOpen, onTick);
+  useAnimationFrame(scramble, onTick);
 
   return (
-    <dialog open={isOpen} onClick={() => set(!isOpen)}>
+    <dialog open={!!scramble} onClick={onClose}>
       <article>
-        <h1>{"SCRAMBLE SCRAMBLE SCRAMBLE"}</h1>
+        <h1>{scramble?.scramble}</h1>
         <h1>{timerState.toString()}</h1>
         <h1>{(time / 1000).toFixed(3)}</h1>
       </article>
@@ -31,7 +29,7 @@ export const TimeMeasurementDialog = () => {
   );
 }
 
-const useAnimationFrame = (isRunning: boolean, onTick: (_?: unknown) => void) => {
+const useAnimationFrame = (isRunning: any, onTick: (_?: unknown) => void) => {
   const forceStop = useRef(false);
   const rafRef = useRef<ReturnType<typeof requestAnimationFrame>>();
   const loop = useCallback(() => {
@@ -44,8 +42,7 @@ const useAnimationFrame = (isRunning: boolean, onTick: (_?: unknown) => void) =>
   useEffect(() => {
     rafRef.current = requestAnimationFrame(loop);
     return () => {
-      console.log("end");
-      forceStop.current = true;
+      // forceStop.current = true;
       if (rafRef.current) {
         cancelAnimationFrame(rafRef.current);
       }

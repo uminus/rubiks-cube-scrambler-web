@@ -43,12 +43,6 @@ export const TimerContext = ({children}: { children: any }) => {
           timestamp: stop.getTime()
         } as Solved
       });
-      // const scramble = document.getElementById(this._selected);
-      // const time = document.createElement("p");
-      // time.className = "time";
-      // scramble.append(time);
-      // time.append(document.createTextNode(`${ms / 1000}`));
-
       // STATE.ws.send(JSON.stringify({
       //   type: "solved",
       //   token: STATE.token,
@@ -62,8 +56,10 @@ export const TimerContext = ({children}: { children: any }) => {
 
     if (key === " " && state === TimerState.NULL) {
       setState(TimerState.GetReady);
+      console.log("GetReady");
       setReadyTimer(setTimeout(() => {
         setState(TimerState.GetSet);
+        console.log("GetSet");
       }, 800));
     }
 
@@ -74,6 +70,7 @@ export const TimerContext = ({children}: { children: any }) => {
       if (state === TimerState.GetSet) {
         setTimer([new Date()]);
         setState(TimerState.GO);
+        console.log("GO");
       } else {
         if (readyTimer) {
           clearTimeout(readyTimer);

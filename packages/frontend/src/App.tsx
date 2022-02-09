@@ -17,6 +17,7 @@ export const App = () => {
         <small><a href="https://twitter.com/uminusus">@uminus</a> : <a
           href="https://github.com/uminus/rubiks-cube-scrambler-web">Source code</a></small>
       </main>
-      <TimeMeasurementDialog />
+      <TimeMeasurementDialog scramble={state.scramble}
+                             onClose={() => dispatch({type: "selected", payload: state.scramble?.id})} />
     </>)
 };

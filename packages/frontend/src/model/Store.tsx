@@ -2,7 +2,7 @@ import {createContext, Reducer, useEffect, useReducer} from "preact/compat";
 import {connect} from "../WsConnector";
 import {Scramble, Solved} from "shared";
 
-export type ActionType = "" | "scramble" | "solved";
+export type ActionType = "" | "scramble" | "solved" | "selected";
 
 export interface Action<P> {
   type: ActionType,
@@ -14,11 +14,13 @@ export type ScrambleAndTime = Scramble & { solved?: Array<Solved> };
 export interface State {
   scramble?: Scramble,
   scrambles: Array<ScrambleAndTime>;
+  selected?: string;
 }
 
 const INITIAL_STATE: State = {
   scramble: undefined,
   scrambles: [],
+  selected: undefined,
 };
 
 const ACTIONS = new Map<ActionType, Reducer<State, Action<any>>>([
@@ -28,14 +30,26 @@ const ACTIONS = new Map<ActionType, Reducer<State, Action<any>>>([
     next.unshift(payload);
     return Object.assign({}, prev, {scrambles: next.slice(0, 8)});
   }],
+  ["selected", (prev, {payload: selected}: Action<string>) => {
+    if (prev.selected === selected) {
+      console.log("unselected", selected);
+      return Object.assign({}, prev, {selected: undefined, scramble: undefined});
+    }
+    console.log("selected", selected);
+    const scramble = prev.scrambles.find(s => s.id === selected);
+    return Object.assign({}, prev, {selected, scramble});
+  }],
   ["solved", (prev, {payload}: Action<Solved>) => {
-    prev.scrambles.forEach(s => {
-      if (!s.solved) {
-        s.solved = [];
+    const scramble = prev.scrambles.find(s => s.id === prev.selected);
+    if (scramble) {
+      if (!scramble.solved) {
+        scramble.solved = [];
       }
-      s.solved.push(payload!);
-    });
-    return Object.assign({}, prev, {scrambles: prev.scrambles.slice()});
+      scramble!.solved!.push(payload!);
+      return Object.assign({}, prev, {scrambles: prev.scrambles.slice()});
+    } else {
+      return prev;
+    }
   }],
 ]);
 
