@@ -24,6 +24,10 @@ export const TimeMeasurementDialog = ({scramble, onClose}: { scramble?: Scramble
         <h1>{scramble?.scramble}</h1>
         <h1>{timerState.toString()}</h1>
         <h1>{(time / 1000).toFixed(3)}</h1>
+        <p>Long press [SPACE] to ready, and release to start.</p>
+        <p>Then press any keys to stop the timer.</p>
+
+        <p>Press [Enter] to move to the next scramble.</p>
       </article>
     </dialog>
   );

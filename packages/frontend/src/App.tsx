@@ -14,6 +14,9 @@ export const App = () => {
             .map((s) => <ScrambleCard user="abc" scramble={s} />)
           }
         </div>
+        <p>
+          Tap Scramble or Press [Enter] to go to the measurement mode.
+        </p>
         <small><a href="https://twitter.com/uminusus">@uminus</a> : <a
           href="https://github.com/uminus/rubiks-cube-scrambler-web">Source code</a></small>
       </main>

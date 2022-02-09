@@ -21,7 +21,7 @@ export const TimerContext = ({children}: { children: any }) => {
   const [timer, setTimer] = useState<[Date?, Date?]>([]);
   const [readyTimer, setReadyTimer] = useState<ReturnType<typeof setTimeout>>();
 
-  const {dispatch} = useContext(Store);
+  const {state: store, dispatch} = useContext(Store);
 
   const onKeyDown = useCallback((ev: KeyboardEvent) => {
     const {key, repeat} = ev;
@@ -63,6 +63,12 @@ export const TimerContext = ({children}: { children: any }) => {
       }, 800));
     }
 
+    if (key === "Enter" && state === TimerState.NULL) {
+      dispatch({
+        type: "selected",
+        payload: undefined,
+      });
+    }
   }, [state]);
 
   const onKeyUp = useCallback((ev: KeyboardEvent) => {

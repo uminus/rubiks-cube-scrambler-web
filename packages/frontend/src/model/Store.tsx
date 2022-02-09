@@ -31,6 +31,11 @@ const ACTIONS = new Map<ActionType, Reducer<State, Action<any>>>([
     return Object.assign({}, prev, {scrambles: next.slice(0, 8)});
   }],
   ["selected", (prev, {payload: selected}: Action<string>) => {
+    if (!selected) {
+      const scramble = prev.scrambles[0];
+      return Object.assign({}, prev, {selected: scramble.id, scramble});
+    }
+
     if (prev.selected === selected) {
       console.log("unselected", selected);
       return Object.assign({}, prev, {selected: undefined, scramble: undefined});
