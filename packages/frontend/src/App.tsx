@@ -11,7 +11,7 @@ export const App = () => {
       <main className="container">
         <div>
           {state.scrambles
-            .map((s) => <ScrambleCard user="abc" scramble={s} solves={[]} />)
+            .map((s) => <ScrambleCard user="abc" scramble={s} />)
           }
         </div>
         <small><a href="https://twitter.com/uminusus">@uminus</a> : <a

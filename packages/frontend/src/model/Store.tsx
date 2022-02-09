@@ -1,35 +1,41 @@
 import {createContext, Reducer, useEffect, useReducer} from "preact/compat";
 import {connect} from "../WsConnector";
-import {Scramble} from "shared";
+import {Scramble, Solved} from "shared";
 
-export type ActionType = "" | "debug" | "scramble";
+export type ActionType = "" | "scramble" | "solved";
 
 export interface Action<P> {
   type: ActionType,
   payload?: P
 }
 
+export type ScrambleAndTime = Scramble & { solved?: Array<Solved> };
+
 export interface State {
   scramble?: Scramble,
-  scrambles: Array<Scramble>;
-  counter: number;
+  scrambles: Array<ScrambleAndTime>;
 }
 
 const INITIAL_STATE: State = {
   scramble: undefined,
   scrambles: [],
-  counter: 0
 };
 
 const ACTIONS = new Map<ActionType, Reducer<State, Action<any>>>([
   ["", (prev, action: Action<any>) => prev],
-  ["debug", (prev, action: Action<any>) => {
-    return Object.assign({}, prev, {counter: prev.counter + 1});
-  }],
   ["scramble", (prev, {payload}: Action<any>) => {
     const next = prev.scrambles.slice();
     next.unshift(payload);
     return Object.assign({}, prev, {scrambles: next.slice(0, 8)});
+  }],
+  ["solved", (prev, {payload}: Action<Solved>) => {
+    prev.scrambles.forEach(s => {
+      if (!s.solved) {
+        s.solved = [];
+      }
+      s.solved.push(payload!);
+    });
+    return Object.assign({}, prev, {scrambles: prev.scrambles.slice()});
   }],
 ]);
 

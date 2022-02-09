@@ -32,8 +32,6 @@ export function connect(dispatch: Dispatch) {
 
   ws.addEventListener("message", ev => {
     const data = JSON.parse(ev.data);
-    console.log(data);
-    dispatch({type: "debug"});
 
     if (data.type === "scramble") {
       const {payload} = data as Message<Scramble>;

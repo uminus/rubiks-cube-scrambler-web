@@ -1,13 +1,13 @@
-import {Scramble, Solved} from "shared";
+import {ScrambleAndTime} from "../model/Store";
 
-export const ScrambleCard = ({user, scramble, solves}: { user: string, scramble: Scramble, solves: Array<Solved> }) => {
+export const ScrambleCard = ({user, scramble}: { user: string, scramble: ScrambleAndTime }) => {
   return (
-    <article id="">
+    <article>
       <header>{new Date(scramble.timestamp).toLocaleString()}</header>
       {scramble.scramble}
       {
-        solves.map((s, i) => {
-          const str = `${i}. ${s.user} - ${s.time / 1000}`;
+        (scramble.solved || []).map((s, i) => {
+          const str = `${i + 1}. ${s.user} - ${s.time / 1000}`;
           if (user === s.user) {
             return (<p className="time">
               <ins>{str}</ins>
